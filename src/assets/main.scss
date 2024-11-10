@@ -1,0 +1,19 @@
+@import 'parts/variables.scss';
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
+
+.windows-explorer {
+    background-color: $bg-color;
+
+    .folder-explorer {
+        li {
+            &:hover {
+                color: $hover;
+            }
+        }
+    }
+}
