@@ -1,54 +1,53 @@
 <!-- src/components/FolderContents.vue -->
 <template>
     <div class="folder-contents">
-        <h2>{{ currentFolder.name }} Contents</h2>
-        <div v-if="currentFolder.subfolders && currentFolder.subfolders.length">
-            <h3>Subfolders:</h3>
-            <ul>
-                <li v-for="folder in currentFolder.subfolders" :key="folder.id">
-                    {{ folder.name }}
-                </li>
-            </ul>
-        </div>
-        <div v-if="currentFolder.files && currentFolder.files.length">
-            <h3>Files:</h3>
-            <ul>
-                <li v-for="file in currentFolder.files" :key="file.id">
-                    {{ file.name }}
-                </li>
-            </ul>
+        <!-- <h2>{{ currentFolder.name }} Contents</h2> -->
+        <ul class="breadcrumbs" v-if="folderStore.breadCrumbs.length > 0">
+            <li class="breadcrumbs__content" @click="folderStore.root()">
+                <span>Root</span>
+            </li>
+            <li v-for="(folder, index) in folderStore.breadCrumbs" @click="folderStore.backBreadcrumb(folder, index)"
+                class="breadcrumbs__content" :key="folder.id">
+                <span> {{ folder.name }}</span>
+            </li>
+        </ul>
+        <div class="folder-contents__subfolder"
+            v-if="subFolders && subFolders.length && folderStore.subFolders.length > 0">
+            <table class="table-container">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Type</th>
+                        <th>Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr @contextmenu.prevent="showMenuContext($event, folder)" v-for="folder in subFolders" :key="folder.id" @click="folderStore.fetchFolders(folder, true)">
+                        <td>{{ folder.name }}</td>
+                        <td>Folder</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </template>
 
-<script>
-export default {
-    name: 'FolderContents',
-    props: {
-        currentFolder: Object
+<script setup>
+import { defineProps, defineEmits, ref } from 'vue';
+import { useFolderStore } from '@/stores/folder';
+import { useContextMenuStore } from '@/stores/context-menu';
+
+const folderStore = useFolderStore();
+const contextMenuStore = useContextMenuStore();
+
+const props = defineProps({
+    subFolders: {
+        type: Array
     }
+});
+
+const showMenuContext = (event, folder) => {
+    contextMenuStore.showMenu(event.clientX, event.clientY, folder );
 }
 </script>
-
-<style scoped>
-.folder-contents {
-    padding: 10px;
-}
-
-h2 {
-    font-size: 18px;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    padding: 5px 0;
-}
-
-li:hover {
-    background-color: #f0f0f0;
-}
-</style>

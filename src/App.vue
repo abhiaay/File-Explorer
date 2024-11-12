@@ -1,63 +1,57 @@
 <!-- src/App.vue -->
 <template>
-  <div id="app" class="windows-explorer">
-    <FolderExplorer :folders="folders" @folderSelected="loadFolderContents" />
-    <FolderContents v-if="selectedFolder" :currentFolder="selectedFolder" />
+  <div id="app" @click="contextMenuStore.hideMenu">
+    <FolderActions />
+    <div class="windows-explorer">
+      <FolderExplorer :folders="folderStore.folders"  />
+      <FolderContents :subFolders="folderStore.subFolders" />
+    </div>
+    <Modal id="create" title="Create Folder" continue-text="Save" @save="() => createFolder()">
+      <div class="form-floating mb-3">
+        <input type="email" v-model="createFolderName" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <label for="floatingInput">Folder Name</label>
+      </div>
+    </Modal>
+    <ContextMenu :menuPosition="contextMenuStore.position" :isMenuVisible="contextMenuStore.isVisible">
+        <li>
+            <button @click.prevent="() => { MicroModal.show('delete') }" class="btn btn-link">Delete</button>
+        </li>
+    </ContextMenu>
+    <Modal id="delete" title="Delete" continue-text="Delete" @save="deleteContent">
+        <p>Are you sure you want to delete the contents of this folder?</p>
+    </Modal>
   </div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup>
+import { ref, onMounted } from 'vue';
+import FolderActions from './components/FolderActions.vue';
 import FolderExplorer from './components/FolderExplorer.vue';
 import FolderContents from './components/FolderContents.vue';
+import { useFolderStore } from '@/stores/folder';
+import ContextMenu from './components/parts/ContextMenu.vue';
+import Modal from '@/components/Modal.vue';
+import MicroModal from 'micromodal';
+import { useContextMenuStore } from './stores/context-menu';
 
-export default {
-  name: 'App',
-  components: {
-    FolderExplorer,
-    FolderContents
-  },
-  setup() {
-    const folders = ref([
-      {
-        id: 1,
-        name: 'Documents',
-        subfolders: [
-          { id: 2, name: 'Work' },
-          { id: 3, name: 'Personal' }
-        ],
-        files: [{ id: 1, name: 'Resume.pdf' }, { id: 2, name: 'Report.docx' }]
-      },
-      {
-        id: 4,
-        name: 'Downloads',
-        subfolders: [
-          { id: 5, name: 'Photos' },
-          { id: 6, name: 'Videos' }
-        ],
-        files: [{ id: 3, name: 'file.zip' }, { id: 4, name: 'image.jpg' }]
-      }
-    ]);
+const folderStore = useFolderStore();
+const contextMenuStore = useContextMenuStore();
 
-    const selectedFolder = ref(null);
+const createFolderName = defineModel();
 
-    const loadFolderContents = (folder) => {
-      console.log(folder);
-      selectedFolder.value = folder;
-    };
+onMounted(() => {
+  folderStore.fetchFolders();
+});
 
-    return {
-      folders,
-      selectedFolder,
-      loadFolderContents
-    };
-  }
-};
-</script>
 
-<style scoped>
-.windows-explorer {
-  display: flex;
-  height: 100vh;
+const createFolder = async () => {
+  folderStore.create(createFolderName);
+  MicroModal.close();
 }
-</style>
+
+const deleteContent = () => {
+  contextMenuStore.deleteContent();
+  MicroModal.close();
+  contextMenuStore.hideMenu();
+}
+</script>
