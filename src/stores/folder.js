@@ -8,6 +8,7 @@ export const useFolderStore = defineStore('folder', {
             name: '',
         },
         folders: [],    // Store the list of folders
+        files: [],
         selectedFolder: null,
         subFolders: [],
         breadCrumbs: [],
@@ -49,13 +50,16 @@ export const useFolderStore = defineStore('folder', {
                     // this.folders = response.data.data; // Assume the API returns a list of folders
                     if (response.data.data.sub_folders) {
                         this.subFolders = response.data.data.sub_folders;
-                        // this.folders = this.subFolders;
                     } else {
                         this.subFolders = [];
                     }
                 } else {
                     response = await axios.get('http://localhost:8000/api/folder'); // Replace with your API URL
-                    this.folders = response.data.data; // Assume the API returns a list of folders
+                    this.folders = response.data.data.folders; // Assume the API returns a list of folders
+                }
+
+                if (response?.data?.data?.files) {
+                    this.files = response.data.data.files;
                 }
             } catch (error) {
                 console.log(error)
@@ -82,7 +86,7 @@ export const useFolderStore = defineStore('folder', {
                 if (this.currentFolder) {
                     this.subFolders.push(response.data.data);
                 } else {
-                    this.folder.push(response.data.data);
+                    this.folders.push(response.data.data);
                 }
             } catch (error) {
                 console.log(error);

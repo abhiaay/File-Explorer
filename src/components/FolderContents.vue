@@ -23,9 +23,23 @@
                 </thead>
                 <tbody>
                     <tr @contextmenu.prevent="showMenuContext($event, folder)" v-for="folder in subFolders" :key="folder.id" @click="folderStore.fetchFolders(folder, true)">
-                        <td>{{ folder.name }}</td>
+                        <td>
+                            <font-awesome-icon icon="fa-solid fa-folder" />
+                            {{ folder.name }}
+                        </td>
                         <td>Folder</td>
                         <td>-</td>
+                    </tr>
+                    <tr @contextmenu.prevent="showMenuContext($event, file)" v-for="file in folderStore.files" :key="file.id">
+                        <td>
+                            <font-awesome-icon icon="fa-solid fa-file" />
+                            {{ file.name }}
+                        </td>
+                        <td>File</td>
+                        <td>
+                            {{ file.size / 1000000 }}
+                            MB
+                        </td>
                     </tr>
                 </tbody>
             </table>

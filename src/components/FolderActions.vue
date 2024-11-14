@@ -1,9 +1,9 @@
 <template>
     <div class="folder-action">
-        <button class="btn btn-secondary" data-micromodal-trigger="create">
+        <button class="btn btn-secondary" data-micromodal-trigger="createFolder">
             <font-awesome-icon icon="fa-solid fa-folder" />
         </button>
-        <button class="btn btn-secondary">
+        <button class="btn btn-secondary" data-micromodal-trigger="createFile">
             <font-awesome-icon icon="fa-solid fa-file" />
         </button>
     </div>

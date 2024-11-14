@@ -6,10 +6,16 @@
       <FolderExplorer :folders="folderStore.folders"  />
       <FolderContents :subFolders="folderStore.subFolders" />
     </div>
-    <Modal id="create" title="Create Folder" continue-text="Save" @save="() => createFolder()">
+    <Modal id="createFolder" title="Create Folder" continue-text="Save" @save="() => createFolder()">
       <div class="form-floating mb-3">
-        <input type="email" v-model="createFolderName" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <input type="text" v-model="createFolderName" class="form-control" id="floatingInput" placeholder="name@example.com">
         <label for="floatingInput">Folder Name</label>
+      </div>
+    </Modal>
+    <Modal id="createFile" title="Create File" continue-text="Save" @save="() => createFile()">
+      <div class="form-floating mb-3">
+        <input type="text" v-model="createFileName" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <label for="floatingInput">File Name</label>
       </div>
     </Modal>
     <ContextMenu :menuPosition="contextMenuStore.position" :isMenuVisible="contextMenuStore.isVisible">
@@ -29,24 +35,34 @@ import FolderActions from './components/FolderActions.vue';
 import FolderExplorer from './components/FolderExplorer.vue';
 import FolderContents from './components/FolderContents.vue';
 import { useFolderStore } from '@/stores/folder';
+import { useFileStore } from './stores/file';
 import ContextMenu from './components/parts/ContextMenu.vue';
 import Modal from '@/components/Modal.vue';
 import MicroModal from 'micromodal';
 import { useContextMenuStore } from './stores/context-menu';
 
 const folderStore = useFolderStore();
+const fileStore = useFileStore();
 const contextMenuStore = useContextMenuStore();
 
-const createFolderName = defineModel();
+const createFolderName = defineModel('folder-name');
+const createFileName = defineModel('file-name');
 
 onMounted(() => {
   folderStore.fetchFolders();
 });
 
 
-const createFolder = async () => {
+const createFolder = () => {
   folderStore.create(createFolderName);
-  MicroModal.close();
+  createFolderName.value = null;
+  MicroModal.close('createFolder');
+}
+
+const createFile = () => {
+  fileStore.create(createFileName, folderStore.currentFolder);
+  createFileName.value = null;
+  MicroModal.close('createFile');
 }
 
 const deleteContent = () => {
